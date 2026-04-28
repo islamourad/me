@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room Lookup System</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f8fafb 0%, #f0f5f7 100%);
+            min-height: 100vh;
+            color: #1a1a1a;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.5rem;
+            background: rgba(85, 139, 109, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        header h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 1.5rem;
+        }
+
+        .hero-section {
+            max-width: 800px;
+            margin: 0 auto 3rem;
+            text-align: center;
+        }
+
+        .hero-section h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-section p {
+            font-size: 1.125rem;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        .search-container {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 1.25rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            font-size: 1rem;
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            border-radius: 0.875rem;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #558B6D;
+            box-shadow: 0 0 0 3px rgba(85, 139, 109, 0.1);
+        }
+
+        .search-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1rem;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            color: #999;
+        }
+
+
+
+        .room-badge {
+            background: rgba(85, 139, 109, 0.1);
+            border: 1px solid rgba(85, 139, 109, 0.2);
+            padding: 0.375rem 1rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            color: #558B6D;
+            font-size: 0.875rem;
+        }
+
+        .student-card {
+            background: white;
+            border: 1px solid #eee;
+            border-radius: 0.875rem;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+            cursor: default;
+        }
+
+        .student-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-color: rgba(85, 139, 109, 0.3);
+        }
+
+        .student-info h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 0.25rem;
+        }
+
+        .student-info p {
+            font-size: 0.875rem;
+            color: #999;
+        }
+
+        .room-number {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 0.5rem;
+            background: #558B6D;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 1.125rem;
+            transition: all 0.2s ease;
+        }
+
+        .student-card:hover .room-number {
+            background: #4a7556;
+        }
+
+        .empty-state {
+            background: white;
+            border: 2px dashed #ddd;
+            border-radius: 0.875rem;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .empty-state-icon {
+            width: 4rem;
+            height: 4rem;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 2rem;
+        }
+
+        .empty-state h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state p {
+            color: #999;
+        }
+
+        footer {
+            border-top: 1px solid rgba(0, 0, 0, 0.08);
+            background: rgba(255, 255, 255, 0.5);
+            margin-top: 4rem;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            color: #999;
+            font-size: 0.875rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .hero-section h2 {
+                font-size: 1.875rem;
+            }
+
+            .hero-section p {
+                font-size: 1rem;
+            }
+
+            .search-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+
+            .dropdown-content {
+                right: auto;
+                left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo-icon">👥</div>
+            <h1>Room Lookup</h1>
+        </div>
+    </header>
+
+    <main>
+        <div class="hero-section">
+            <h2>Find Your Room</h2>
+            <p>Enter a student's last name to find their room assignment</p>
+
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input
+                    type="text"
+                    id="searchInput"
+                    class="search-input"
+                    placeholder="Search by last name (e.g., AIDEL, BENABID)..."
+                    autofocus
+                />
+            </div>
+
+            <div class="search-info" id="searchInfo" style="display: none;">
+                <span id="resultCount">Found 0 results</span>
+            </div>
+        </div>
+
+        <div class="results-container" id="resultsContainer"></div>
+    </main>
+
+    <footer>
+        <p>Room Lookup System • <span id="year"></span></p>
+    </footer>
+
+    <script>
+        // Student data
+        const studentsData = [
+            {"last_name": "AIDEL", "first_name": "Rimal", "room": "01"},
+            {"last_name": "AKMOUM", "first_name": "Imene", "room": "01"},
+            {"last_name": "ALLOUNE", "first_name": "Merouane", "room": "01"},
+            {"last_name": "AMARA", "first_name": "Mounir", "room": "01"},
+            {"last_name": "AMEUR", "first_name": "Azzeddine", "room": "01"},
+            {"last_name": "ANCER", "first_name": "Meriem", "room": "01"},
+            {"last_name": "AYACHI", "first_name": "Amira", "room": "01"},
+            {"last_name": "AYACHI", "first_name": "Imane", "room": "01"},
+            {"last_name": "AYACHI", "first_name": "Leila", "room": "01"},
+            {"last_name": "AYADI", "first_name": "Fares", "room": "01"},
+            {"last_name": "AZRA", "first_name": "Souad", "room": "01"},
+            {"last_name": "AZZA", "first_name": "Ilham", "room": "01"},
+            {"last_name": "AZZOUZ", "first_name": "Imane", "room": "01"},
+            {"last_name": "BAHAH", "first_name": "Salah", "room": "01"},
+            {"last_name": "BAHAMMA", "first_name": "Mohammed", "room": "01"},
+            {"last_name": "BAHRI", "first_name": "Soumia", "room": "01"},
+            {"last_name": "BECHTA", "first_name": "Nedjmeddine", "room": "01"},
+            {"last_name": "BEDDAH", "first_name": "Nadhir", "room": "01"},
+            {"last_name": "BEDHANE", "first_name": "Okba", "room": "01"},
+            {"last_name": "BEGGAH", "first_name": "Samia", "room": "01"},
+            {"last_name": "BELAGRA", "first_name": "Houria", "room": "01"},
+            {"last_name": "BELAIBA", "first_name": "Abdennour", "room": "01"},
+            {"last_name": "BELALTA", "first_name": "Ramla", "room": "01"},
+            {"last_name": "BELAMRI", "first_name": "Maroua naila", "room": "01"},
+            {"last_name": "BELAYADI", "first_name": "Amna", "room": "01"},
+            {"last_name": "BELFAR", "first_name": "Ahlam", "room": "01"},
+            {"last_name": "BELFERROUM", "first_name": "Mohamed elyamine", "room": "01"},
+            {"last_name": "BELHADI", "first_name": "Chaima", "room": "01"},
+            {"last_name": "BELHOONE", "first_name": "Afaf", "room": "01"},
+            {"last_name": "BELHOUL", "first_name": "Hamoudi", "room": "01"},
+            {"last_name": "BELKAALOUL", "first_name": "Seyfeddine", "room": "01"},
+            {"last_name": "BELKADI", "first_name": "Ahmed abderraouf", "room": "01"},
+            {"last_name": "BENABID", "first_name": "Sonia", "room": "01"},
+            {"last_name": "BENATTIA", "first_name": "Mariem", "room": "01"},
+            {"last_name": "BENBOUGUER", "first_name": "Nawel", "room": "01"},
+            {"last_name": "BENDJEDDOU", "first_name": "AMINA", "room": "01"},
+            {"last_name": "BENFEDILA", "first_name": "Imene", "room": "01"},
+            {"last_name": "BENGUETTAF", "first_name": "Ahmed", "room": "01"},
+            {"last_name": "BENKADJA", "first_name": "Nour elhouda", "room": "01"},
+            {"last_name": "BENKEMACHE", "first_name": "Ibtissem", "room": "01"},
+            {"last_name": "BENKHEZNAD", "first_name": "Amina", "room": "01"},
+            {"last_name": "BENMAKHLOUF", "first_name": "Abdelfateh", "room": "02"},
+            {"last_name": "BENMANSOUR", "first_name": "MOUSSA", "room": "02"},
+            {"last_name": "BENOUADAH", "first_name": "Zohra", "room": "02"},
+            {"last_name": "BENRABAH", "first_name": "Ahlem", "room": "02"},
+            {"last_name": "BENSEFIA", "first_name": "Sofiane", "room": "02"},
+            {"last_name": "BENTRA", "first_name": "Meriem", "room": "02"},
+            {"last_name": "BERKA", "first_name": "Lilia", "room": "02"},
+            {"last_name": "BEY", "first_name": "Oum el kheir", "room": "02"},
+            {"last_name": "BOUAFIA", "first_name": "Said", "room": "02"},
+            {"last_name": "BOUAISSI", "first_name": "Seddik", "room": "02"},
+            {"last_name": "BOUDARI", "first_name": "Hayet", "room": "02"},
+            {"last_name": "BOUDJELIDA", "first_name": "Abdelhak", "room": "02"},
+            {"last_name": "BOUDRAA", "first_name": "Khadidja", "room": "02"},
+            {"last_name": "BOUGUERRA", "first_name": "Asma", "room": "02"},
+            {"last_name": "BOUKHARI", "first_name": "Marwa", "room": "02"},
+            {"last_name": "BOULTIF", "first_name": "Bilal", "room": "02"},
+            {"last_name": "BOUMAZA", "first_name": "Farid", "room": "02"},
+            {"last_name": "BOUMERFEG", "first_name": "SABAH", "room": "02"},
+            {"last_name": "BOUMERGUED", "first_name": "Khalissa", "room": "02"},
+            {"last_name": "BOURENANE", "first_name": "Kanza", "room": "02"},
+            {"last_name": "BOUTALBI", "first_name": "Ilham", "room": "02"},
+            {"last_name": "BRAHIMI", "first_name": "Dalila", "room": "02"},
+            {"last_name": "CHELIBI", "first_name": "Chahrazed", "room": "02"},
+            {"last_name": "CHENITI", "first_name": "Derradji", "room": "02"},
+            {"last_name": "DECHACHE", "first_name": "Mohamed salah", "room": "02"},
+            {"last_name": "DEHIMAT", "first_name": "Radia", "room": "02"},
+            {"last_name": "DERRADJI", "first_name": "Fatima zohra", "room": "02"},
+            {"last_name": "DIAF", "first_name": "Messaouda", "room": "02"},
+            {"last_name": "DRIS", "first_name": "Khaoula", "room": "02"},
+            {"last_name": "FATMI", "first_name": "Widad", "room": "02"},
+            {"last_name": "GAMOURA", "first_name": "Abderrahim", "room": "02"},
+            {"last_name": "GHEBOULI", "first_name": "MESSAOUDA", "room": "02"},
+            {"last_name": "GUELMINE", "first_name": "Layachi", "room": "02"},
+            {"last_name": "GUERGOUR", "first_name": "Hassina", "room": "02"},
+            {"last_name": "GUETTAB", "first_name": "Djemai wassim", "room": "02"},
+            {"last_name": "HADDAD", "first_name": "Radhia", "room": "02"},
+            {"last_name": "HADDOUCHE", "first_name": "Hadjer", "room": "02"},
+            {"last_name": "HADJERSI", "first_name": "SOUHIR", "room": "02"},
+            {"last_name": "HAMIMID", "first_name": "Doua", "room": "02"},
+            {"last_name": "HAMIMID", "first_name": "Ilyes", "room": "02"},
+            {"last_name": "HAMIMID", "first_name": "Mourad", "room": "02"},
+            {"last_name": "HAMMA", "first_name": "Amel", "room": "03"},
+            {"last_name": "HAMMACHE", "first_name": "Khadidja", "room": "03"},
+            {"last_name": "HAMMACHE", "first_name": "Soumia", "room": "03"},
+            {"last_name": "HASSANI", "first_name": "Taha abdeljalil", "room": "03"},
+            {"last_name": "HENNI", "first_name": "Zakarya", "room": "03"},
+            {"last_name": "HERIZI", "first_name": "SABRINA", "room": "03"},
+            {"last_name": "HIHAT", "first_name": "SORAYA", "room": "03"},
+            {"last_name": "HIMA", "first_name": "Amel", "room": "03"},
+            {"last_name": "HOFRA", "first_name": "Manal", "room": "03"},
+            {"last_name": "IRATNI", "first_name": "Nadjet", "room": "03"},
+            {"last_name": "ISSAM", "first_name": "Meghlaoui", "room": "03"},
+            {"last_name": "KHALFA", "first_name": "Lilia", "room": "03"},
+            {"last_name": "KHINOUCHE", "first_name": "SAFA", "room": "03"},
+            {"last_name": "KHODRI", "first_name": "Mounir", "room": "03"},
+            {"last_name": "KOURDACHE", "first_name": "Abdellah", "room": "03"},
+            {"last_name": "KRIBA", "first_name": "Farid", "room": "03"},
+            {"last_name": "LAISSOUJI", "first_name": "Kamel", "room": "03"},
+            {"last_name": "LAYACHI", "first_name": "Nafaa", "room": "03"},
+            {"last_name": "LEBEIBAT", "first_name": "Samia", "room": "03"},
+            {"last_name": "LEBEIBAT", "first_name": "Tarek", "room": "03"},
+            {"last_name": "LEGHLAM", "first_name": "Randa lamis", "room": "03"},
+            {"last_name": "LETTIFI", "first_name": "Lamis", "room": "03"},
+            {"last_name": "LETTIFI", "first_name": "Asma", "room": "03"},
+            {"last_name": "LOGZIT", "first_name": "Naceur", "room": "03"},
+            {"last_name": "LOUALI", "first_name": "Souad", "room": "03"},
+            {"last_name": "LOUNIS", "first_name": "Khaled", "room": "03"},
+            {"last_name": "Lakhlef", "first_name": "Nora", "room": "03"},
+            {"last_name": "MAADADI", "first_name": "Asma", "room": "03"},
+            {"last_name": "MABREK", "first_name": "Naouel", "room": "03"},
+            {"last_name": "MALEK", "first_name": "Leila", "room": "03"},
+            {"last_name": "MALEK", "first_name": "Sara", "room": "03"},
+            {"last_name": "MEBARKI", "first_name": "Lila", "room": "03"},
+            {"last_name": "MEDJMADJ", "first_name": "SLIMANE", "room": "03"},
+            {"last_name": "MEDJOUBI", "first_name": "Mohamed ramy", "room": "03"},
+            {"last_name": "MEGUEDDEM", "first_name": "Imene", "room": "03"},
+            {"last_name": "MERAKCHI", "first_name": "Salah", "room": "03"},
+            {"last_name": "MEROUCHE", "first_name": "Khalissa", "room": "03"},
+            {"last_name": "MEZHOUD", "first_name": "Noureddine", "room": "03"},
+            {"last_name": "MOHAMADI", "first_name": "Samira", "room": "03"},
+            {"last_name": "MOUFFOK", "first_name": "ABDESSAMIAÂ", "room": "03"},
+            {"last_name": "NAIT SEGHIR", "first_name": "Aicha", "room": "03"},
+            {"last_name": "NEDJAHI", "first_name": "Chemseeddine", "room": "04"},
+            {"last_name": "NEFNAF", "first_name": "Fatma", "room": "04"},
+            {"last_name": "NEKKAA", "first_name": "Abdellaziz", "room": "04"},
+            {"last_name": "NOUI", "first_name": "Malika", "room": "04"},
+            {"last_name": "NOUI", "first_name": "Nabila", "room": "04"},
+            {"last_name": "OUCHENE", "first_name": "Amina", "room": "04"},
+            {"last_name": "RAGOUB", "first_name": "Mourad", "room": "04"},
+            {"last_name": "REBAI", "first_name": "Rima", "room": "04"},
+            {"last_name": "ROUAIGUIA", "first_name": "Nadia", "room": "04"},
+            {"last_name": "SAHED", "first_name": "Aicha", "room": "04"},
+            {"last_name": "SAHLI", "first_name": "Youcef", "room": "04"},
+            {"last_name": "SAHRAOUI", "first_name": "SACI", "room": "04"},
+            {"last_name": "SAIDANI", "first_name": "Hichem", "room": "04"},
+            {"last_name": "SAIDANI", "first_name": "Samira", "room": "04"},
+            {"last_name": "SALIK", "first_name": "Loubna", "room": "04"},
+            {"last_name": "SAMRI", "first_name": "Mourad", "room": "04"},
+            {"last_name": "SAOUDI", "first_name": "Nedjoua", "room": "04"},
+            {"last_name": "SARIR", "first_name": "Karima", "room": "04"},
+            {"last_name": "SATOURI", "first_name": "Djoudi", "room": "04"},
+            {"last_name": "SBIH", "first_name": "Asmaa", "room": "04"},
+            {"last_name": "SEHILI", "first_name": "Ismahene", "room": "04"},
+            {"last_name": "SEKHARA", "first_name": "Fawzi", "room": "04"},
+            {"last_name": "SID AHMED", "first_name": "Soumia", "room": "04"},
+            {"last_name": "SLIMANI", "first_name": "Imane", "room": "04"},
+            {"last_name": "SOBHI", "first_name": "Fatima zohra", "room": "04"},
+            {"last_name": "SOUAGUI", "first_name": "Yasmina", "room": "04"},
+            {"last_name": "TABTI", "first_name": "Salima", "room": "04"},
+            {"last_name": "TAIRI", "first_name": "Hadjer", "room": "04"},
+            {"last_name": "TAKHA", "first_name": "Abdelghani", "room": "04"},
+            {"last_name": "TALBI", "first_name": "Mohamed lamine", "room": "04"},
+            {"last_name": "TEKALI", "first_name": "Manel", "room": "04"},
+            {"last_name": "TICHERAMINE", "first_name": "Anissa", "room": "04"},
+            {"last_name": "TOUAMA", "first_name": "Zoubir", "room": "04"},
+            {"last_name": "TOUATI", "first_name": "Noureddine", "room": "04"},
+            {"last_name": "ZAGHEDANE", "first_name": "Issam", "room": "04"},
+            {"last_name": "ZAITER", "first_name": "Mokhtar", "room": "04"},
+            {"last_name": "ZEHAR", "first_name": "Assia", "room": "04"},
+            {"last_name": "ZEMMIT", "first_name": "Yacine", "room": "04"},
+            {"last_name": "ZERROUTI", "first_name": "Hanane", "room": "04"},
+            {"last_name": "ZIANE", "first_name": "Sofiane", "room": "04"},
+            {"last_name": "ZIGA", "first_name": "Mohamed elamine", "room": "04"},
+            {"last_name": "ZOUAOUI", "first_name": "Asma", "room": "04"},
+            {"last_name": "ZENKRI", "first_name": "MILOUD", "room": "04"}
+        ];
+
+        // DOM Elements
+        const searchInput = document.getElementById('searchInput');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const searchInfo = document.getElementById('searchInfo');
+        const resultCount = document.getElementById('resultCount');
+        const yearSpan = document.getElementById('year');
+
+        yearSpan.textContent = new Date().getFullYear();
+
+        let currentResults = [];
+
+        // Search functionality
+        function performSearch() {
+            const query = searchInput.value.toUpperCase().trim();
+
+            if (!query) {
+                currentResults = [];
+                resultsContainer.innerHTML = '';
+                searchInfo.style.display = 'none';
+                return;
+            }
+
+            currentResults = studentsData.filter(student =>
+                student.last_name.toUpperCase().includes(query)
+            );
+
+            displayResults();
+            updateSearchInfo();
+        }
+
+        function displayResults() {
+            if (currentResults.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔍</div>
+                        <h3>No results found</h3>
+                        <p>Try searching with a different last name</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Group by room
+            const resultsByRoom = {};
+            currentResults.forEach(student => {
+                if (!resultsByRoom[student.room]) {
+                    resultsByRoom[student.room] = [];
+                }
+                resultsByRoom[student.room].push(student);
+            });
+
+            const sortedRooms = Object.keys(resultsByRoom).sort();
+
+            let html = '';
+            sortedRooms.forEach(room => {
+                html += `
+                    <div class="room-section">
+                        <div class="room-header">
+                            <div class="room-divider"></div>
+                            <div class="room-badge">Room ${room}</div>
+                            <div class="room-divider"></div>
+                        </div>
+                        <div>
+                            ${resultsByRoom[room].map(student => `
+                                <div class="student-card">
+                                    <div class="student-info">
+                                        <h3>${student.last_name}</h3>
+                                        <p>${student.first_name}</p>
+                                    </div>
+                                    <div class="room-number">${student.room}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            resultsContainer.innerHTML = html;
+        }
+
+        function updateSearchInfo() {
+            if (currentResults.length > 0) {
+                resultCount.textContent = `Found ${currentResults.length} result${currentResults.length !== 1 ? 's' : ''}`;
+                searchInfo.style.display = 'flex';
+            } else {
+                searchInfo.style.display = 'none';
+            }
+        }
+
+
+
+        // Event listeners
+        searchInput.addEventListener('input', performSearch);
+    </script>
+</body>
+</html>
